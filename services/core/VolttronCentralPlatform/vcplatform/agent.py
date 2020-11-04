@@ -640,7 +640,7 @@ class VolttronCentralPlatform(Agent):
             message['device_name'] = repr(ex)
             _log.error(repr(ex))
 
-        self._pub_to_vc(self._iam_vc_response_topic, message=message)
+        self._pub_to_vc(self._iam_vc_response_topic, message=message, debug=True)
 
     def start_bacnet_scan(self, iam_vc_response_topic, proxy_identity,
                           low_device_id=None,
@@ -713,7 +713,7 @@ class VolttronCentralPlatform(Agent):
         gevent.spawn_later(float(scan_length * 2),
                            self._stop_listening_for_iam)
 
-    def _pub_to_vc(self, topic_leaf, headers=None, message=None):
+    def _pub_to_vc(self, topic_leaf, headers=None, message=None, debug=False):
         if self._vc_connection is None:
             _log.error('Platform must have connection to vc to publish {}'
                        .format(topic_leaf))
@@ -724,9 +724,10 @@ class VolttronCentralPlatform(Agent):
 
         topic = "platforms/{}/{}".format(self.get_instance_uuid(),
                                          topic_leaf)
-        # _log.debug('Publishing to vc topic: {}'.format(topic))
-        # _log.debug('Publishing to vc headers: {}'.format(headers))
-        # _log.debug('Publishing to vc message: {}'.format(message))
+        if debug:
+            _log.debug('Publishing to vc topic: {}'.format(topic))
+            _log.debug('Publishing to vc headers: {}'.format(headers))
+            _log.debug('Publishing to vc message: {}'.format(message))
 
         # Note because vc is a vcconnection object we are explicitly
         # saying to publish to the vc platform.
@@ -906,8 +907,8 @@ class VolttronCentralPlatform(Agent):
     def get_renamed_topic(self, input_topic):
         """
         replace topic name based on configured topic replace list, is any
-        :param input_topic: 
-        :return: 
+        :param input_topic:
+        :return:
         """
         output_topic = input_topic
         _log.debug(
